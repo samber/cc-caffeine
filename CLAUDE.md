@@ -14,6 +14,7 @@ The system consists of a modular architecture with the following components:
 4. **src/server.js** - Handles server process management and Electron integration
 5. **src/system-tray.js** - Manages system tray functionality and sleep prevention
 6. **src/electron.js** - Wraps Electron-specific functionality and provides cross-platform support
+7. **src/config.js** - Reads user configuration from `~/.claude/plugins/cc-caffeine/config.json`
 
 ### User Commands
 
@@ -27,13 +28,31 @@ The system consists of a modular architecture with the following components:
 - Cross-platform support (Linux, macOS, Windows)
 - Headless Electron system tray (no windows, only system tray)
 - JSON file for session persistence with proper-lockfile for concurrency
-- Automatic session timeout (15 minutes of inactivity)
+- Configurable session timeout (default: 15 minutes of inactivity)
 - Auto-server startup when not running
 - Multiple concurrent session support
 - Real-time status monitoring
 - Lightweight client commands (no Electron dependency for caffeinate/uncaffeinate)
 - Native sleep prevention using Electron's powerSaveBlocker API
 - Hidden from macOS dock using app.dock.hide()
+
+## Configuration
+
+User configuration is stored at `~/.claude/plugins/cc-caffeine/config.json`. All settings are optional and have sensible defaults.
+
+```json
+{
+  "session_timeout_minutes": 15,
+  "icon_theme": "orange"
+}
+```
+
+### Options
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `session_timeout_minutes` | `15` | Minutes of inactivity before a session expires |
+| `icon_theme` | `"orange"` | Tray icon theme: `"orange"` (colored) or `"monochrome"` (black/white, auto-adapts to macOS dark mode) |
 
 ## Technical Stack
 
@@ -177,7 +196,7 @@ Sessions are removed automatically after 15 minutes of inactivity.
 
 ## Session Management
 
-- Sessions auto-expire after 15 minutes of inactivity
+- Sessions auto-expire after the configured timeout (default: 15 minutes of inactivity)
 - Automatic cleanup of expired sessions during every add/remove operation
 - Server polls JSON file every 10 seconds for active sessions (with file locking)
 - Multiple sessions can be active simultaneously
@@ -235,9 +254,11 @@ npm run format    # Format code with Prettier (if installed)
 The application uses CommonJS modules with clear dependency hierarchy:
 
 - `caffeine.js` imports from `src/commands.js` and `src/server.js`
-- `src/commands.js` imports from `src/session.js`
+- `src/commands.js` imports from `src/session.js` and `src/config.js`
 - `src/server.js` imports from `src/session.js`, `src/system-tray.js`, and `src/electron.js`
-- `src/system-tray.js` imports from `src/session.js` and `src/electron.js`
+- `src/system-tray.js` imports from `src/session.js`, `src/electron.js`, and `src/config.js`
+- `src/session.js` imports from `src/config.js`
+- `src/config.js` reads `~/.claude/plugins/cc-caffeine/config.json`
 - `src/electron.js` provides Electron functionality on-demand
 
 ## Sleep Prevention
@@ -258,13 +279,19 @@ src/
 └── server.js            - Server process management and Electron integration
 └── system-tray.js       - System tray functionality and sleep prevention
 └── electron.js          - Electron-specific functionality wrapper
+└── config.js            - User configuration reader
 package.json         - Node.js dependencies and scripts
 icon-coffee-full.png - Active caffeine icon (PNG)
 icon-coffee-empty.png- Inactive caffeine icon (PNG)
 icon-coffee-full.svg - Active caffeine icon (SVG)
 icon-coffee-empty.svg- Inactive caffeine icon (SVG)
+icon-coffee-full-mono.png - Active caffeine icon monochrome (PNG)
+icon-coffee-empty-mono.png- Inactive caffeine icon monochrome (PNG)
+icon-coffee-full-mono.svg - Active caffeine icon monochrome (SVG)
+icon-coffee-empty-mono.svg- Inactive caffeine icon monochrome (SVG)
 ~/.claude/plugins/cc-caffeine/
 └── sessions.json    - JSON file with session data
+└── config.json      - User configuration (optional)
 ```
 
 **Modular architecture benefits:**

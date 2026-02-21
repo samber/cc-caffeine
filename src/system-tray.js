@@ -6,6 +6,7 @@ const path = require('path');
 
 const { getActiveSessionsWithLock, cleanupExpiredSessionsWithLock } = require('./session');
 const { getElectron } = require('./electron');
+const { getConfig } = require('./config');
 const { removePidFileWithLock } = require('./pid');
 const package = require('../package.json');
 
@@ -15,10 +16,19 @@ let trayState = null;
  * Create icon for system tray
  */
 const createIcon = isActive => {
-  const icon = isActive ? '../assets/icon-coffee-full.png' : '../assets/icon-coffee-empty.png';
+  const { icon_theme } = getConfig();
+  const isMono = icon_theme === 'monochrome';
+  const suffix = isMono ? '-mono' : '';
+  const icon = isActive
+    ? `../assets/icon-coffee-full${suffix}.png`
+    : `../assets/icon-coffee-empty${suffix}.png`;
   const iconPath = path.join(__dirname, icon);
   const { nativeImage } = getElectron();
-  return nativeImage.createFromPath(iconPath);
+  const image = nativeImage.createFromPath(iconPath);
+  if (isMono && process.platform === 'darwin') {
+    image.setTemplateImage(true);
+  }
+  return image;
 };
 
 /**

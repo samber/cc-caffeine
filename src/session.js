@@ -2,10 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const lockfile = require('proper-lockfile');
+const { getConfig } = require('./config');
 
 const CONFIG_DIR = path.join(os.homedir(), '.claude', 'plugins', 'cc-caffeine');
 const SESSIONS_FILE = path.join(CONFIG_DIR, 'sessions.json');
-const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+const getSessionTimeout = () => getConfig().session_timeout_minutes * 60 * 1000;
 const MAX_RETRIES = 10;
 
 const initSessionsFile = async () => {
@@ -66,7 +67,7 @@ const addSessionWithLock = async sessionId => {
       const lastActivity = new Date(sessionData.last_activity);
       const timeDiff = nowDate - lastActivity;
 
-      if (timeDiff >= SESSION_TIMEOUT) {
+      if (timeDiff >= getSessionTimeout()) {
         delete data.sessions[existingSessionId];
         removedCount++;
       }
@@ -124,7 +125,7 @@ const removeSessionWithLock = async sessionId => {
       const lastActivity = new Date(sessionData.last_activity);
       const timeDiff = nowDate - lastActivity;
 
-      if (timeDiff >= SESSION_TIMEOUT) {
+      if (timeDiff >= getSessionTimeout()) {
         delete data.sessions[existingSessionId];
         cleanedCount++;
       }
@@ -169,7 +170,7 @@ const getActiveSessionsWithLock = async () => {
       const lastActivity = new Date(sessionData.last_activity);
       const timeDiff = now - lastActivity;
 
-      if (timeDiff < SESSION_TIMEOUT) {
+      if (timeDiff < getSessionTimeout()) {
         activeSessions.push({
           id: sessionId,
           ...sessionData
@@ -200,7 +201,7 @@ const cleanupExpiredSessionsWithLock = async () => {
       const lastActivity = new Date(sessionData.last_activity);
       const timeDiff = now - lastActivity;
 
-      if (timeDiff >= SESSION_TIMEOUT) {
+      if (timeDiff >= getSessionTimeout()) {
         delete data.sessions[sessionId];
         removedCount++;
       }
