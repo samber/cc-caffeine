@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Coffee cup - smaller cup with more margin -->
+  <path d="M8 10 L8 22 L10 24 L22 24 L24 22 L24 10 Z"
+        fill="#000000"/>
+  <!-- Coffee liquid - smaller liquid with margin -->
+  <path d="M10 14 L10 18 L12 20 L20 20 L22 18 L22 14 Z"
+        fill="#333333"/>
+  <!-- Coffee handle - smaller handle with margin -->
+  <path d="M24 14 L28 14 L28 18 L24 18 Z"
+        fill="#000000"/>
+  <!-- Steam - simple flat lines with more margin -->
+  <line x1="12" y1="6" x2="12" y2="2" stroke="#000000" stroke-width="1" opacity="0.7"/>
+  <line x1="16" y1="6" x2="16" y2="2" stroke="#000000" stroke-width="1" opacity="0.7"/>
+  <line x1="20" y1="6" x2="20" y2="2" stroke="#000000" stroke-width="1" opacity="0.7"/>
+</svg>

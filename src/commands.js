@@ -10,6 +10,7 @@ const fs = require('fs');
 const { addSessionWithLock, removeSessionWithLock, getActiveSessionsWithLock } = require('./session');
 const { isServerRunningWithLock } = require('./pid');
 const { runServerProcessIfNotStarted } = require('./server');
+const { getConfig } = require('./config');
 
 /**
  * Handle session commands with JSON input from Claude Code hooks
@@ -132,7 +133,7 @@ const handleStatus = async () => {
       });
     }
 
-    console.error('\nSession timeout: 15 minutes of inactivity');
+    console.error(`\nSession timeout: ${getConfig().session_timeout_minutes} minutes of inactivity`);
   } catch (error) {
     console.error('Error getting status:', error.message);
     process.exit(1);
