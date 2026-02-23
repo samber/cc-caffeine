@@ -7,7 +7,11 @@
 const path = require('path');
 const fs = require('fs');
 
-const { addSessionWithLock, removeSessionWithLock, getActiveSessionsWithLock } = require('./session');
+const {
+  addSessionWithLock,
+  removeSessionWithLock,
+  getActiveSessionsWithLock
+} = require('./session');
 const { isServerRunningWithLock } = require('./pid');
 const { runServerProcessIfNotStarted } = require('./server');
 const { getConfig } = require('./config');
@@ -133,7 +137,9 @@ const handleStatus = async () => {
       });
     }
 
-    console.error(`\nSession timeout: ${getConfig().session_timeout_minutes} minutes of inactivity`);
+    console.error(
+      `\nSession timeout: ${getConfig().session_timeout_minutes} minutes of inactivity`
+    );
   } catch (error) {
     console.error('Error getting status:', error.message);
     process.exit(1);
@@ -151,7 +157,9 @@ const handleUsage = () => {
   console.error('  uncaffeinate [session_id] - Disable caffeine for current session');
   console.error('  server                    - Start caffeine server with system tray');
   console.error('  status                    - Show current status and active sessions');
-  console.error('  version                   - Show version information from package.json and plugin.json');
+  console.error(
+    '  version                   - Show version information from package.json and plugin.json'
+  );
   process.exit(1);
 };
 

@@ -18,7 +18,7 @@ const lockfile = require('proper-lockfile');
 const CONFIG_DIR = path.join(os.homedir(), '.claude', 'plugins', 'cc-caffeine');
 const PID_FILE = path.join(CONFIG_DIR, 'server.pid');
 
-const withPidLock = async (fn) => {
+const withPidLock = async fn => {
   // create if not exists
   try {
     const fd = fs.openSync(PID_FILE, 'wx');
@@ -138,8 +138,8 @@ const validatePid = async pid => {
     const isWindows = os.platform() === 'win32';
     const psCommand = isWindows
       ? spawn('wmic', ['process', 'where', `processid=${pid}`, 'get', 'commandline'], {
-        stdio: 'pipe'
-      })
+          stdio: 'pipe'
+        })
       : spawn('ps', ['-p', pid, '-o', 'command='], { stdio: 'pipe' });
 
     let output = '';
@@ -157,7 +157,8 @@ const validatePid = async pid => {
       const commandLine = output.trim().toLowerCase();
       for (const line of commandLine.split('\n')) {
         // Check if command line contains both "caffeine" and "server"
-        const isCaffeineServer = line.includes('caffeine server') || line.includes('caffeine.js server');
+        const isCaffeineServer =
+          line.includes('caffeine server') || line.includes('caffeine.js server');
         const isElectron = line.includes('electron');
 
         if (isCaffeineServer && isElectron) {
