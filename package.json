@@ -1,6 +1,6 @@
 {
   "name": "cc-caffeine",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Prevents your computer from sleeping while Claude Code works hard",
   "main": "caffeine.js",
   "bin": {
