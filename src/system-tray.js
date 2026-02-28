@@ -17,12 +17,24 @@ let trayState = null;
  */
 const createIcon = isActive => {
   const { icon_theme } = getConfig();
-  const isMono = icon_theme === 'monochrome';
-  const suffix = isMono ? '-mono' : '';
-  const icon = isActive
-    ? `../assets/icon-coffee-full${suffix}.png`
-    : `../assets/icon-coffee-empty${suffix}.png`;
-  const iconPath = path.join(__dirname, icon);
+  let suffix;
+  let isMono;
+  switch (icon_theme) {
+    case 'monochrome':
+      suffix = '-mono';
+      isMono = true;
+      break;
+    case 'macos':
+      suffix = '-macos';
+      isMono = true;
+      break;
+    default:
+      suffix = '';
+      isMono = false;
+      break;
+  }
+  const name = isActive ? 'icon-coffee-full' : 'icon-coffee-empty';
+  const iconPath = path.join(__dirname, `../assets/${name}${suffix}.png`);
   const { nativeImage } = getElectron();
   const image = nativeImage.createFromPath(iconPath);
   if (isMono && process.platform === 'darwin') {

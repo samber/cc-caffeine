@@ -49,10 +49,10 @@ User configuration is stored at `~/.claude/plugins/cc-caffeine/config.json`. All
 
 ### Options
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `session_timeout_minutes` | `15` | Minutes of inactivity before a session expires |
-| `icon_theme` | `"orange"` | Tray icon theme: `"orange"` (colored) or `"monochrome"` (black/white, auto-adapts to macOS dark mode) |
+| Setting                   | Default    | Description                                                                                                                                                  |
+|---------------------------|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `session_timeout_minutes` | `15`       | Minutes of inactivity before a session expires                                                                                                               |
+| `icon_theme`              | `"orange"` | Tray icon theme: `"orange"` (colored), `"monochrome"` (black/white, auto-adapts to macOS dark mode), `"macos"` (macos-style, auto-adapts to macOS dark mode) |
 
 ## Technical Stack
 
