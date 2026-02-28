@@ -11,7 +11,7 @@ const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 
 const DEFAULTS = {
   session_timeout_minutes: 15,
-  icon_theme: 'orange' // 'orange' | 'monochrome'
+  icon_theme: process.platform === 'darwin' ? 'macos' : 'orange' // 'orange' | 'monochrome' | 'macos'
 };
 
 let cachedConfig = null;
