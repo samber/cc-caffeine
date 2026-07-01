@@ -35,7 +35,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "electron": "^41.4.0",
+    "electron": "^43.0.0",
     "proper-lockfile": "^4.1.2"
   },
   "devDependencies": {
