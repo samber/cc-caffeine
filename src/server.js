@@ -14,7 +14,13 @@ const {
   whenReady,
   quit
 } = require('./electron');
-const { isServerRunning, writePidFile, withPidLock, isServerRunningWithLock } = require('./pid');
+const {
+  isServerRunning,
+  writePidFile,
+  withPidLock,
+  isStartupInProgress,
+  markStartupInProgress
+} = require('./pid');
 
 const CHECK_INTERVAL = 5 * 1000; // 10 seconds
 
@@ -22,14 +28,39 @@ const CHECK_INTERVAL = 5 * 1000; // 10 seconds
  * Ensure server is running, start if needed
  */
 const runServerProcessIfNotStarted = async () => {
-  const isRunning = await isServerRunningWithLock();
-  if (isRunning) {
-    console.error('Server is already running');
-    return;
+  let mustStart = false;
+
+  try {
+    // Claim the startup inside the lock so concurrent hooks agree on which one
+    // of them spawns the server. The spawn itself happens after the lock is
+    // released, because the spawned process needs the lock to write its PID.
+    await withPidLock(async () => {
+      if (await isServerRunning()) {
+        console.error('Server is already running');
+        return;
+      }
+
+      if (await isStartupInProgress()) {
+        console.error('Server startup is already in progress');
+        return;
+      }
+
+      await markStartupInProgress();
+      mustStart = true;
+    });
+  } catch (error) {
+    if (error.code === 'ELOCKED') {
+      // Another process holds the lock and will decide whether to start.
+      console.error('Server startup is being handled by another process');
+      return;
+    }
+    throw error;
   }
 
-  console.error('Server not running, starting...');
-  await startServerProcess();
+  if (mustStart) {
+    console.error('Server not running, starting...');
+    await startServerProcess();
+  }
 };
 
 /**

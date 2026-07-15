@@ -17,6 +17,11 @@ const lockfile = require('proper-lockfile');
 
 const CONFIG_DIR = path.join(os.homedir(), '.claude', 'plugins', 'cc-caffeine');
 const PID_FILE = path.join(CONFIG_DIR, 'server.pid');
+const STARTUP_FILE = path.join(CONFIG_DIR, 'server.starting');
+
+// A server only writes its PID once Electron has booted, which takes seconds.
+// Long enough to cover that window, short enough to retry a failed startup.
+const STARTUP_GRACE_MS = 30 * 1000;
 
 const withPidLock = async fn => {
   // create if not exists
@@ -140,7 +145,10 @@ const validatePid = async pid => {
       ? spawn('wmic', ['process', 'where', `processid=${pid}`, 'get', 'commandline'], {
           stdio: 'pipe'
         })
-      : spawn('ps', ['-p', pid, '-o', 'command='], { stdio: 'pipe' });
+      : // -ww disables ps's column truncation. Without it the command line is cut
+        // at the terminal width, and long install paths (npx cache dirs are well
+        // over 80 characters) lose the "caffeine.js server" suffix matched below.
+        spawn('ps', ['-ww', '-p', String(pid), '-o', 'command='], { stdio: 'pipe' });
 
     let output = '';
 
@@ -213,6 +221,32 @@ const isServerRunning = async () => {
   }
 };
 
+/**
+ * Check whether a server startup was initiated recently enough that the server
+ * may not have written its PID file yet
+ * @returns {Promise<boolean>} True if a startup is still within the grace window
+ */
+const isStartupInProgress = async () => {
+  try {
+    const startedAt = parseInt(await fs.promises.readFile(STARTUP_FILE, 'utf8'), 10);
+
+    if (isNaN(startedAt)) {
+      return false;
+    }
+
+    return Date.now() - startedAt < STARTUP_GRACE_MS;
+  } catch (error) {
+    return false; // No marker, or unreadable - treat as no startup underway
+  }
+};
+
+/**
+ * Record that a server startup is being initiated now
+ */
+const markStartupInProgress = async () => {
+  await fs.promises.writeFile(STARTUP_FILE, Date.now().toString(), 'utf8');
+};
+
 module.exports = {
   writePidFile,
   readPidFile,
@@ -221,5 +255,7 @@ module.exports = {
   validatePid,
   isServerRunningWithLock,
   isServerRunning,
+  isStartupInProgress,
+  markStartupInProgress,
   withPidLock
 };
