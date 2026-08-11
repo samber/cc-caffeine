@@ -1,6 +1,9 @@
 version: 2
 updates:
   - package-ecosystem: npm
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
     directory: /
     schedule:
       interval: monthly
