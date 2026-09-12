@@ -4,3 +4,6 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
